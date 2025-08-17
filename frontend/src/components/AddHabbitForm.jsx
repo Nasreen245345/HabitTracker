@@ -22,9 +22,10 @@ function AddHabitForm({ onAddHabit }) {
         type="text"
         placeholder="Enter habit name"
         value={habitName}
+        required
         onChange={(e) => setHabitName(e.target.value)}
         className="border p-2 rounded flex-grow"
-        required
+     
       />
       <button
         type="submit"

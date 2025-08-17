@@ -16,10 +16,10 @@ const SignupPage = () => {
     });
   };
 
-  // handle form submit
+  
   const handleSubmit = (e) => {
-    e.preventDefault(); 
-    console.log("Form submitted:", formData);
+    
+    console.log( formData);
   };
 
   return (
@@ -33,7 +33,7 @@ const SignupPage = () => {
           Welcome to Habit Tracker
         </div>
 
-        {/* FORM */}
+        
         <form onSubmit={handleSubmit} className='space-y-3 flex flex-col'>
           <label className="text-black font-bold font-inter">Name</label>
           <input 
@@ -73,7 +73,7 @@ const SignupPage = () => {
             className="px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          {/* Submit button inside form */}
+    
           <button 
             type="submit" 
             className="bg-blue1 text-white py-2 rounded-md font-bold hover:bg-blue-200 transition-colors"

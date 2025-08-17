@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import {Link} from 'react-router-dom'
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -8,12 +8,12 @@ const Navbar = () => {
       <div className="max-w-screen-xl mx-auto px-4 py-5 flex items-center justify-between">
         <h1 className="text-customWhite font-bold text-lg">Habit Tracker</h1>
         <div className="hidden md:flex space-x-6">
-          <a href="#" className="text-customWhite hover:underline">
+          <Link to='/dashboard' className="text-customWhite hover:underline">
             Dashboard
-          </a>
-          <a href="#" className="text-customWhite hover:underline">
-            Logout
-          </a>
+          </Link>
+          <Link to="/login" className="text-customWhite hover:underline">
+            Login
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -26,12 +26,12 @@ const Navbar = () => {
       </div>
       {menuOpen && (
         <div className="md:hidden bg-blue1 px-4 pb-4 space-y-2">
-          <a href="#" className="block text-customWhite hover:underline">
+          <Link to="/dashboard" className="block text-customWhite hover:underline">
             Dashboard
-          </a>
-          <a href="#" className="block text-customWhite hover:underline">
-            Logout
-          </a>
+          </Link>
+          <Link to="login" className="block text-customWhite hover:underline">
+            Login
+          </Link>
         </div>
       )}
     </nav>
