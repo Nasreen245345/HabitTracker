@@ -12,7 +12,7 @@ function HabitTracker() {
       history: { Mon: false, Tue: false, Wed: false, Thu: false, Fri: false, Sat: false, Sun: false }
     }]);
   };
-  const handleToggleHabit = (index, day = "Wed") => {
+  const handleToggleHabit = (index, day) => {
     const updatedHabits = [...habits];
     updatedHabits[index].history[day] = !updatedHabits[index].history[day];
     setHabits(updatedHabits);

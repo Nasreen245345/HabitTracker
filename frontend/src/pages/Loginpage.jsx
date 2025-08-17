@@ -5,16 +5,17 @@ const Loginpage = (onToggle) => {
     const [formData,setFormData]=useState({email:'',password:''})
 const [error,setError]=useState('')
 const handleSubmit=async (e)=>{
+ 
 // e.preventDefault()
 // sending data to backend authcontext not implemented yet
 // const result= await Login(formData.email,formData.password)
-if(!result.success) setError(result.message)
+// if(!result.success) setError(result.message)
 }
 const handleChange=(e)=>{
     setFormData((prev)=>({...prev,[e.target.name]:e.target.value}))
     
 }
-
+setError('')
   return (
    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
   <div className="bg-customWhite w-full sm:w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 mx-auto flex flex-col justify-center rounded-lg gap-4 py-6 px-6 shadow-lg">
@@ -56,7 +57,7 @@ const handleChange=(e)=>{
     />
 </form>
    
-    <button className="bg-blue1 text-white py-2 rounded-md font-bold hover:bg-blue-200 transition-colors">
+    <button type='submit' className="bg-blue1 text-white py-2 rounded-md font-bold hover:bg-blue-200 transition-colors">
       Login
     </button>
 
