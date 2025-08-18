@@ -10,8 +10,8 @@ function AddHabitForm({ onAddHabit }) {
  
     onAddHabit({
       name: habitName,
-    //   progress: 0, 
-    //   days: [] 
+      progress: 0, 
+      days: [] 
     });
     setHabitName(""); 
   };

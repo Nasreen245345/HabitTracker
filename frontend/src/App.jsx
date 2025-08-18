@@ -1,29 +1,29 @@
-import { useState } from 'react'
-import './App.css'
-import Navbar from './components/Navbar'
-import Loginpage from './pages/Loginpage'
-import Signuppage from './pages/Signuppage'
-import Footer from './components/Footer'
-import HabitTracker from './components/HabitTracker'
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Navbar from './components/Navbar';
+import LoginPage from './pages/Loginpage';
+import SignupPage from './pages/Signuppage';
+import Footer from './components/Footer';
+import HabitTracker from './components/HabitTracker';
+import {useAuth} from './context/AuthContext.jsx'
 function App() {
+  const user=useAuth()
   return (
-    <>
-    <div className='nav'>
-     <Navbar />
-    </div>
-     <div className='login'>
-       <Loginpage />
-     </div>
-     <div>
-      <Signuppage />
-     </div>
-     <div className='mb-20 mt-20'>
-      <HabitTracker/>
-     </div>
-     <div>
-      <Footer/>
-     </div>
-    </>
+    <Router>
+      <div>
+        {/* {user &&<Navbar />} */}
+      </div>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/tracker" element={<HabitTracker />} />
+      </Routes>
+
+      <div>
+        <Footer />
+      </div>
+    </Router>
   )
 }
-export default App
+
+export default App;

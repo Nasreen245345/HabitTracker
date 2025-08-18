@@ -46,7 +46,7 @@ function HabitTracker() {
         ))}
       </ul>
       
-      {/* <Dashboard habits={habits} /> */}
+      <Dashboard habits={habits} />
     </div>
     
   );
