@@ -2,7 +2,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-   <footer className='bg-blue1 flex flex-col items-center justify-center py-8'>
+   <footer className='bg-blue1 flex flex-col items-center justify-center py-5 sm:py-8'>
     <div className='font-inter text-customWhite'>
     Habit Tracker © 2025 | Built with by Nasreen  | v1.0.0
     </div>
@@ -12,5 +12,4 @@ const Footer = () => {
    </footer>
   )
 }
-
 export default Footer
