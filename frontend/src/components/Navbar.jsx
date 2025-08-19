@@ -8,12 +8,13 @@ const Navbar = () => {
       <div className="max-w-screen-xl mx-auto px-4 py-5 flex items-center justify-between">
         <h1 className="text-customWhite font-bold text-lg">Habit Tracker</h1>
         <div className="hidden md:flex space-x-6">
-          <Link to='/dashboard' className="text-customWhite hover:underline">
+          <Link to='/dashboard' className="text-customWhite font-inter hover:underline">
             Dashboard
           </Link>
-          <Link to="/tracker" className="text-customWhite hover:underline">
+          <Link to="/tracker" className="text-customWhite font-inter hover:underline">
             Tracker
           </Link>
+          <Link to="login" className="text-customWhite font-inter hover:underline">Logout</Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -32,6 +33,7 @@ const Navbar = () => {
           <Link to="login" className="block text-customWhite hover:underline">
             Login
           </Link>
+          <Link to="login" className="">Logout</Link>
         </div>
       )}
     </nav>

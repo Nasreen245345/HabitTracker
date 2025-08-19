@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import AddHabitForm from "./AddHabbitForm"; // Your simple form
-import Dashboard from "../pages/Dashboard"; // The dashboard we created
+import AddHabitForm from "./AddHabbitForm";
 import {useHabits} from "../context/HabitsContext"
 function HabitTracker() {
   const {habits, setHabits} = useHabits();
 
-  // Add new habit - this function handles the data from your AddHabitForm
   const handleAddHabit = (newHabit) => {
     setHabits([...habits, { 
       ...newHabit, 
@@ -18,8 +16,8 @@ function HabitTracker() {
         Sat: false, 
         Sun: false 
       },
-      id: Date.now() + Math.random(), // Add unique ID
-      createdAt: new Date().toISOString() // Add creation date
+      id: Date.now() + Math.random(), 
+      createdAt: new Date().toISOString() 
     }]);
   };
 
@@ -33,8 +31,7 @@ function HabitTracker() {
     <div className="min-h-screen flex items-center justify-center mt-10 mb-10">
         <div className="w-1/2  mx-auto mt-10 p-6 border rounded shadow ">
       <h1 className="text-3xl font-bold text-center mb-6">Habit Tracker</h1>
-      
-      {/* Your simple AddHabitForm */}
+    
       <AddHabitForm onAddHabit={handleAddHabit} />
       
       {/* Habits List */}

@@ -176,10 +176,12 @@ const Dashboard = () => {
 
   if (!habits.length) {
     return (
-      <div className="mt-8 p-6 bg-gray-50 rounded-lg text-center">
-        <h2 className="text-xl font-bold mb-4 ">Dashboard</h2>
+     <div className="min-h-screen flex items-center justify-center">
+       <div className="mt-8 p-6 bg-gray-50 rounded-lg text-center t">
+        <h2 className="text-xl font-bold mb-4">Dashboard</h2>
         <p className="text-gray-600">Add some habits to see your progress!</p>
       </div>
+     </div>
     );
   }
 
@@ -388,8 +390,8 @@ const Dashboard = () => {
       </div>
 
       {/* Motivational Section */}
-      <div className="mt-8 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-lg text-center">
-        <h3 className="text-xl font-bold mb-2">Keep Going! 🚀</h3>
+      <div className="mt-8 bg-gradient-to-r from-blue-500 to-purple-400 text-white p-6 rounded-lg text-center">
+        <h3 className="text-xl font-bold mb-2">Keep Going! </h3>
         <p className="text-blue-100">
           {stats.todayRate === 100 ? 
             "Perfect day! You've completed all your habits today!" :
