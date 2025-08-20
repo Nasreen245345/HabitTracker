@@ -20,14 +20,15 @@ const Navbar = () => {
 
           {user ? (
             <>
-              <span className="font-inter text-customWhite">Welcome, {user.name}</span>
-              <button className="font-inter text-customWhite hover:underline" onClick={logout}>Logout</button>
-              <Link
+            <Link
                 to="/tracker"
                 className="text-customWhite font-inter hover:underline"
               >
                 Tracker
               </Link>
+              <span className="font-inter text-customWhite">Welcome, {user.name}</span>
+              <button className="font-inter text-customWhite hover:underline" onClick={logout}>Logout</button>
+              
               
             </>
           ) :(
