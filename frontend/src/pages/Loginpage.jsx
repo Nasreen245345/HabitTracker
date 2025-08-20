@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import {useAuth} from "../context/AuthContext"
+import { useEffect } from 'react';
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
+  const {user,login}=useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,16 +20,19 @@ const LoginPage = () => {
 
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem("token", data.token);
+        login(data.user,data.token)
+        navigate('/tracker')
         alert("Login successful!");
-        navigate("/tracker"); // go to habit tracker after login
       } else {
-        alert(data.message);
+        alert(data.message || "Login Failed");
       }
     } catch (err) {
       console.error(err);
     }
   };
+useEffect(() => {
+  console.log("User in context changed:", user);
+}, [user]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));

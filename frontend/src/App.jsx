@@ -7,13 +7,14 @@ import HabitTracker from './components/HabitTracker';
 import Dashboard from './pages/Dashboard.jsx'
 import {useAuth} from './context/AuthContext.jsx'
 function App() {
-  const user=useAuth()
+  const {user}=useAuth()
+  
   return (
     <div className="min-h-screen flex flex-col">
-    <Router>
+   
 
         <div className="mb-4">
-          <Navbar />
+          { user && <Navbar />}
         </div>
       
       <Routes>
@@ -25,7 +26,7 @@ function App() {
       </Routes>
         <Footer />
    
-    </Router>
+    
     </div>
   )
 }
