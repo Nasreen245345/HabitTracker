@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {useAuth} from "../context/AuthContext"
 import { useEffect } from 'react';
+import axios from "axios";
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ useEffect(() => {
             value={formData.email}
             onChange={handleChange}
             placeholder="Enter email"
-            className="px-3 py-2 rounded-md border border-gray-300"
+            className="px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
 
           <label>Password</label>
@@ -65,7 +66,7 @@ useEffect(() => {
             value={formData.password}
             onChange={handleChange}
             placeholder="Enter password"
-            className="px-3 py-2 rounded-md border border-gray-300"
+            className="px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
 
           <button type="submit" className="bg-blue1 text-white py-2 rounded-md">Login</button>

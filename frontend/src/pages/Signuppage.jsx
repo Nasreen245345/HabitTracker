@@ -40,13 +40,13 @@ const SignupPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-3 flex flex-col">
           <label>Name</label>
-          <input name="name" value={formData.name} onChange={handleChange} required placeholder="Enter name" />
+          <input name="name" value={formData.name} onChange={handleChange} required placeholder="Enter name" className="px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
 
           <label>Email</label>
-          <input name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="Enter email" />
+          <input name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="Enter email" className="px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
 
           <label>Password</label>
-          <input name="password" type="password" value={formData.password} onChange={handleChange} required placeholder="Enter password" />
+          <input name="password" type="password" value={formData.password} onChange={handleChange} required placeholder="Enter password" className="px-3 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
 
           <button type="submit" className="bg-blue1 text-white py-2 rounded-md">Sign Up</button>
         </form>

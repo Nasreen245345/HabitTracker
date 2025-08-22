@@ -1,410 +1,340 @@
-import React, { useState } from "react";
-import {useHabits} from "../context/HabitsContext"
-import { Bar, Doughnut, Line } from "react-chartjs-2";
+import React, { useState, useEffect } from 'react';
+import { Doughnut, Bar } from 'react-chartjs-2';
+import {useAuth} from "../context/AuthContext"
+import { useNavigate } from "react-router-dom";
+import habitApi from "../services/HabitApi";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
-  ArcElement,
-  PointElement,
-  LineElement,
   Title,
   Tooltip,
   Legend,
-} from "chart.js";
-
+  ArcElement,
+} from 'chart.js';
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
-  ArcElement,
-  PointElement,
-  LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
 
-const Dashboard = () => {
-  const {habits}=useHabits()
-  const [selectedPeriod, setSelectedPeriod] = useState("today");
-  const [selectedHabit, setSelectedHabit] = useState("all");
+const HabitDashboard = () => {
+  const [dashboardData, setDashboardData] = useState([]);
+  const [period, setPeriod] = useState('weekly');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const {user}=useAuth()
+  const navigate = useNavigate();
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+  ];
 
-  // Helper function to get current date info
-  const getCurrentDay = () => {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return days[new Date().getDay()];
+  useEffect(() => {
+    fetchDashboardData();
+  }, [period]);
+
+// Calculate overall statistics
+  const calculateOverallStats = () => {
+    if (dashboardData.length === 0) return { avgSuccessRate: 0, totalStreak: 0, completedHabits: 0 };
+
+    const avgSuccessRate = dashboardData.reduce((sum, habit) => sum + parseFloat(habit.successRate), 0) / dashboardData.length;
+    const totalStreak = dashboardData.reduce((sum, habit) => sum + habit.streak, 0);
+    const completedHabits = dashboardData.filter(habit => {
+      const todayComplete = habit.data[habit.data.length - 1] === 1;
+      return todayComplete;
+    }).length;
+
+    return { avgSuccessRate, totalStreak, completedHabits };
   };
 
-  // Calculate success rate for different periods
-  const calculateSuccessRate = (period) => {
-    if (!habits.length) return 0;
+  const { avgSuccessRate, totalStreak, completedHabits } = calculateOverallStats();
 
-    const totalHabits = habits.length;
-    const currentDay = getCurrentDay();
-
-    switch (period) {
-      case "today":
-        const todayCompleted = habits.filter(habit => habit.history[currentDay]).length;
-        return Math.round((todayCompleted / totalHabits) * 100);
-
-      case "week":
-        const days = Object.keys(habits[0]?.history || {});
-        let weeklyCompleted = 0;
-        let totalWeeklyHabits = totalHabits * days.length;
-        
-        habits.forEach(habit => {
-          days.forEach(day => {
-            if (habit.history[day]) weeklyCompleted++;
-          });
-        });
-        
-        return Math.round((weeklyCompleted / totalWeeklyHabits) * 100);
-
-      default:
-        return 0;
-    }
+  // Doughnut chart data
+  const doughnutData = {
+    labels: ['Completed', 'Remaining'],
+    datasets: [
+      {
+        data: [avgSuccessRate, 100 - avgSuccessRate],
+        backgroundColor: ['#4ECDC4', '#E8E8E8'],
+        borderWidth: 0,
+        cutout: '70%',
+      },
+    ],
   };
 
-  // Get habit completion data for charts
-  const getHabitCompletionData = () => {
-    if (!habits.length) return { completed: 0, remaining: 0 };
-
-    const currentDay = getCurrentDay();
-    const completed = habits.filter(habit => habit.history[currentDay]).length;
-    const remaining = habits.length - completed;
-
-    return { completed, remaining };
-  };
-
-  // Get weekly progress data
-  const getWeeklyProgressData = () => {
-    if (!habits.length) return {};
-
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const data = days.map(day => {
-      const completed = habits.filter(habit => habit.history[day]).length;
-      return Math.round((completed / habits.length) * 100);
-    });
-
-    return {
-      labels: days,
-      datasets: [
-        {
-          label: 'Completion Rate (%)',
-          data: data,
-          backgroundColor: 'rgba(34, 197, 94, 0.6)',
-          borderColor: 'rgba(34, 197, 94, 1)',
-          borderWidth: 2,
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `${context.label}: ${context.parsed.toFixed(1)}%`;
+          }
         }
-      ]
-    };
+      }
+    },
   };
 
-  // Get individual habit progress
-  const getIndividualHabitData = () => {
-    if (!habits.length) return {};
+  // Horizontal bar chart data
+  const barData = {
+    labels: dashboardData.map(habit => habit.habitName),
+    datasets: [
+      {
+        label: 'Success Rate (%)',
+        data: dashboardData.map(habit => parseFloat(habit.successRate)),
+        backgroundColor: dashboardData.map((_, index) => colors[index % colors.length]),
+        borderRadius: 8,
+        barThickness: 40,
+      },
+    ],
+  };
 
-    const habitNames = habits.map(habit => habit.name.length > 10 ? habit.name.substring(0, 10) + '...' : habit.name);
-    const days = Object.keys(habits[0].history);
-    const completionRates = habits.map(habit => {
-      const completed = days.filter(day => habit.history[day]).length;
-      return Math.round((completed / days.length) * 100);
-    });
-
-    return {
-      labels: habitNames,
-      datasets: [
-        {
-          label: 'Weekly Completion Rate (%)',
-          data: completionRates,
-          backgroundColor: [
-            'rgba(59, 130, 246, 0.6)',
-            'rgba(16, 185, 129, 0.6)',
-            'rgba(245, 158, 11, 0.6)',
-            'rgba(239, 68, 68, 0.6)',
-            'rgba(139, 92, 246, 0.6)',
-            'rgba(236, 72, 153, 0.6)',
-          ],
-          borderColor: [
-            'rgba(59, 130, 246, 1)',
-            'rgba(16, 185, 129, 1)',
-            'rgba(245, 158, 11, 1)',
-            'rgba(239, 68, 68, 1)',
-            'rgba(139, 92, 246, 1)',
-            'rgba(236, 72, 153, 1)',
-          ],
-          borderWidth: 2,
+  const barOptions = {
+    responsive: true,
+    indexAxis: 'y',
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `Success Rate: ${context.parsed.x.toFixed(1)}%`;
+          }
         }
-      ]
-    };
-  };
-
-  // Doughnut chart data for today's completion
-  const doughnutData = () => {
-    const { completed, remaining } = getHabitCompletionData();
-    
-    return {
-      labels: ['Completed', 'Remaining'],
-      datasets: [
-        {
-          data: [completed, remaining],
-          backgroundColor: ['#22c55e', '#ef4444'],
-          borderColor: ['#16a34a', '#dc2626'],
-          borderWidth: 2,
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        max: 100,
+        grid: {
+          color: '#F3F4F6',
+        },
+        ticks: {
+          callback: function(value) {
+            return value + '%';
+          }
         }
-      ]
-    };
+      },
+      y: {
+        grid: {
+          display: false,
+        },
+      },
+    },
   };
 
-  // Get stats for selected period
-  const getStats = () => {
-    const currentDay = getCurrentDay();
-    const todayRate = calculateSuccessRate("today");
-    const weeklyRate = calculateSuccessRate("week");
-    
-    return {
-      totalHabits: habits.length,
-      todayCompleted: habits.filter(habit => habit.history[currentDay]).length,
-      todayRate,
-      weeklyRate,
-    };
-  };
-
-  const stats = getStats();
-
-  if (!habits.length) {
+  if (loading) {
     return (
-     <div className="min-h-screen flex items-center justify-center">
-       <div className="mt-8 p-6 bg-gray-50 rounded-lg text-center t">
-        <h2 className="text-xl font-bold mb-4">Dashboard</h2>
-        <p className="text-gray-600">Add some habits to see your progress!</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
-     </div>
     );
   }
 
   return (
-    <div className="mt-8 p-6 bg-gray-50 rounded-lg ">
-      <h2 className="text-2xl font-bold mb-6 text-center">Dashboard</h2>
+    <div className="p-6 bg-gray-50 min-h-screen mt-16">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 font-inter">Habits Dashboard</h1>
+          <div className="flex space-x-2">
+            {['today', 'weekly', 'monthly', 'yearly'].map((periodOption) => (
+              <button
+                key={periodOption}
+                onClick={() => setPeriod(periodOption)}
+                className={`px-4 py-2 rounded-lg capitalize transition-colors ${
+                  period === periodOption
+                    ? 'bg-blue1 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {periodOption}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      {/* Period Selection */}
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2 justify-center">
-          {[
-            { key: 'today', label: 'Today' },
-            { key: 'week', label: 'This Week' },
-            { key: 'month', label: 'This Month' },
-            { key: 'year', label: 'This Year' }
-          ].map(period => (
-            <button
-              key={period.key}
-              onClick={() => setSelectedPeriod(period.key)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                selectedPeriod === period.key
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              }`}
+        {error && dashboardData.length > 0 && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+            <p className="font-medium">Using demo data</p>
+            <p className="text-sm">Could not connect to API: {error}</p>
+          </div>
+        )}
+
+        {/* No Habits State */}
+        {dashboardData.length === 0 && !loading && (
+          <div className="text-center py-16">
+            <div className="mx-auto w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+              <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-2">No Habits Yet</h3>
+            <p className="text-gray-500 mb-8 max-w-md mx-auto">
+              Start building better habits by adding your first habit. Track your progress and build streaks to achieve your goals.
+            </p>
+            <button 
+              onClick={() => {
+                navigate("/tracker")
+              }}
+              className="inline-flex items-center px-6 py-3 bg-blue1 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {period.label}
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add Your First Habit
             </button>
-          ))}
-        </div>
-      </div>
+          </div>
+        )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Total Habits</h3>
-          <p className="text-2xl font-bold text-blue-600">{stats.totalHabits}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Today Completed</h3>
-          <p className="text-2xl font-bold text-green-600">{stats.todayCompleted}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Today's Rate</h3>
-          <p className="text-2xl font-bold text-purple-600">{stats.todayRate}%</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-sm font-medium text-gray-500">Weekly Rate</h3>
-          <p className="text-2xl font-bold text-orange-600">{stats.weeklyRate}%</p>
-        </div>
-      </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Overall Success Rate</p>
+                <p className="text-3xl font-bold text-green-600">{avgSuccessRate.toFixed(1)}%</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Today's Completion Doughnut Chart */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4 text-center">Today's Progress</h3>
-          <div className="h-64 flex items-center justify-center">
-            <Doughnut 
-              data={doughnutData()} 
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    position: 'bottom',
-                  },
-                  tooltip: {
-                    callbacks: {
-                      label: function(context) {
-                        return `${context.label}: ${context.parsed} habits`;
-                      }
-                    }
-                  }
-                }
-              }}
-            />
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Streak</p>
+                <p className="text-3xl font-bold text-orange-600">{totalStreak}</p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Active Habits</p>
+                <p className="text-3xl font-bold text-blue-600">{dashboardData.length}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Weekly Progress Bar Chart */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4 text-center">Weekly Overview</h3>
-          <div className="h-64">
-            <Bar 
-              data={getWeeklyProgressData()} 
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                      callback: function(value) {
-                        return value + '%';
-                      }
-                    }
-                  }
-                },
-                plugins: {
-                  legend: {
-                    display: false,
-                  },
-                  tooltip: {
-                    callbacks: {
-                      label: function(context) {
-                        return `Completion: ${context.parsed.y}%`;
-                      }
-                    }
-                  }
-                }
-              }}
-            />
-          </div>
-        </div>
+        {/* Charts and Details - Only show when there's data */}
+        {dashboardData.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Progress Doughnut Chart */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Overall Progress</h2>
+                <div className="relative h-64 flex items-center justify-center">
+                  <Doughnut data={doughnutData} options={doughnutOptions} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-gray-900">{avgSuccessRate.toFixed(1)}%</p>
+                      <p className="text-sm text-gray-500">Success Rate</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        {/* Individual Habit Performance */}
-        <div className="bg-white p-6 rounded-lg shadow lg:col-span-2">
-          <h3 className="text-lg font-semibold mb-4 text-center">Individual Habit Performance</h3>
-          <div className="h-64">
-            <Bar 
-              data={getIndividualHabitData()} 
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                scales: {
-                  x: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                      callback: function(value) {
-                        return value + '%';
-                      }
-                    }
-                  }
-                },
-                plugins: {
-                  legend: {
-                    display: false,
-                  },
-                  tooltip: {
-                    callbacks: {
-                      label: function(context) {
-                        return `Weekly completion: ${context.parsed.x}%`;
-                      }
-                    }
-                  }
-                }
-              }}
-            />
-          </div>
-        </div>
-      </div>
+              {/* Individual Habits Performance */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Individual Habit Performance</h2>
+                <div className="h-64">
+                  <Bar data={barData} options={barOptions} />
+                </div>
+              </div>
+            </div>
 
-      {/* Habit Details Table */}
-      <div className="mt-8 bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">Habit Details</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left p-2">Habit Name</th>
-                <th className="text-center p-2">Mon</th>
-                <th className="text-center p-2">Tue</th>
-                <th className="text-center p-2">Wed</th>
-                <th className="text-center p-2">Thu</th>
-                <th className="text-center p-2">Fri</th>
-                <th className="text-center p-2">Sat</th>
-                <th className="text-center p-2">Sun</th>
-                <th className="text-center p-2">Weekly Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {habits.map((habit, index) => {
-                const days = Object.keys(habit.history);
-                const completed = days.filter(day => habit.history[day]).length;
-                const rate = Math.round((completed / days.length) * 100);
-                
-                return (
-                  <tr key={index} className="border-b hover:bg-gray-50">
-                    <td className="p-2 font-medium">{habit.name}</td>
-                    {days.map(day => (
-                      <td key={day} className="text-center p-2">
-                        <span className={`inline-block w-4 h-4 rounded-full ${
-                          habit.history[day] ? 'bg-green-500' : 'bg-gray-300'
-                        }`}></span>
-                      </td>
+            {/* Habit Details */}
+            <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900">Habit Details</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Habit</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Streak</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Success Rate</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">This Week</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {dashboardData.map((habit, index) => (
+                      <tr key={habit.habitId} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div 
+                              className="w-3 h-3 rounded-full mr-3"
+                              style={{ backgroundColor: colors[index % colors.length] }}
+                            ></div>
+                            <div className="text-sm font-medium text-gray-900">{habit.habitName}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            {habit.streak} days
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{habit.successRate}%</div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${habit.successRate}%` }}
+                            ></div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex space-x-1">
+                            {habit.data.map((day, dayIndex) => (
+                              <div 
+                                key={dayIndex}
+                                className={`w-4 h-4 rounded-sm ${
+                                  day === 1 ? 'bg-green-500' : 'bg-gray-200'
+                                }`}
+                                title={`${habit.labels[dayIndex]}: ${day === 1 ? 'Completed' : 'Not completed'}`}
+                              ></div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
                     ))}
-                    <td className="text-center p-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        rate >= 80 ? 'bg-green-100 text-green-800' :
-                        rate >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {rate}%
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Motivational Section */}
-      <div className="mt-8 bg-gradient-to-r from-blue-500 to-purple-400 text-white p-6 rounded-lg text-center">
-        <h3 className="text-xl font-bold mb-2">Keep Going! </h3>
-        <p className="text-blue-100">
-          {stats.todayRate === 100 ? 
-            "Perfect day! You've completed all your habits today!" :
-            stats.todayRate >= 75 ?
-            "Great progress! You're doing amazing!" :
-            stats.todayRate >= 50 ?
-            "Good job! Keep pushing forward!" :
-            "Every step counts! You can do this!"
-          }
-        </p>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default HabitDashboard;
