@@ -21,10 +21,10 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/tracker" element={<HabitTracker />} />
-        <Route path='/dashboard' element={<Dashboard/>}/>
+        <Route path="/tracker" element={ user? <HabitTracker />:"Login to acces this page"} />
+        <Route path='/dashboard' element={ user? <Dashboard/> :"Login to acces this page"}/>
       </Routes>
-        <Footer />
+       {user && <Footer />} 
    
     
     </div>

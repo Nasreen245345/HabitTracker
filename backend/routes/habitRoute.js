@@ -1,76 +1,144 @@
-const express = require("express");
-const Habit = require("../models/Habit");
+const express = require('express');
 const router = express.Router();
-const authMiddleware = require("../middleware/Auth");
-//get all habits
-router.get("/", authMiddleware, async (req, res) => {
+const Habit = require('../models/Habit'); // Adjust path as needed
+const authMiddleware = require('../middleware/auth'); // Adjust path as needed
+
+// Apply auth middleware to all routes
+router.use(authMiddleware);
+
+//Get all habits 
+router.get('/', async (req, res) => {
   try {
-    const habits = await Habit.find({ userId: req.user.id }).sort({ createdAt: -1 });
+    const userId = req.user.id; 
+    const habits = await Habit.find({ userId }).sort({ createdAt: -1 });
     res.json(habits);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// create habit
-router.post("/", authMiddleware, async (req, res) => {
-  try {
-    const { name} = req.body;
-    const habit = new Habit({
-      name,
-      userId: req.user.id,
+  } catch (error) {
+    console.error('Error fetching habits:', error);
+    res.status(500).json({ 
+      message: 'Failed to fetch habits',
+      error: error.message 
     });
-
-    await habit.save();
-    res.status(201).json(habit);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
   }
 });
 
-// toggle habit day
-router.patch("/:id/toggle", authMiddleware, async (req, res) => {
+// Create a new habit
+router.post('/', async (req, res) => {
   try {
-    const { day, date } = req.body;
-
-    const habit = await Habit.findOne({ _id: req.params.id, userId: req.user.id });
-    if (!habit) {
-      return res.status(404).json({ message: "Habit not found" });
+    const userId = req.user.id;
+    const { name, description, category, frequency } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Habit name is required' });
     }
 
-    const existingIndex = habit.days.findIndex(
-      (d) => d.day === day && d.date === date
-    );
+    const habit = new Habit({
+      name: name.trim(),
+      description: description?.trim() || '',
+      category: category || 'general',
+      frequency: frequency || 'daily',
+      userId,
+      completedDates: [],
+      createdAt: new Date()
+    });
 
-    if (existingIndex >= 0) {
+    const savedHabit = await habit.save();
+    res.status(201).json(savedHabit);
+  } catch (error) {
+    console.error('Error creating habit:', error);
+    res.status(500).json({ 
+      message: 'Failed to create habit',
+      error: error.message 
+    });
+  }
+});
 
-      habit.days.splice(existingIndex, 1);
-    } else {
 
-      habit.days.push({ 
-        day, 
-        date, 
-        completed: true 
+
+
+//  Delete habit
+router.delete('/:habitId', async (req, res) => {
+  try {
+    const { habitId } = req.params;
+    const userId = req.user.id;
+
+    const habit = await Habit.findOneAndDelete({ _id: habitId, userId });
+    if (!habit) {
+      return res.status(404).json({ message: 'Habit not found' });
+    }
+
+    res.json({ 
+      message: 'Habit deleted successfully',
+      deletedHabit: habit 
+    });
+  } catch (error) {
+    console.error('Error deleting habit:', error);
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid habit ID' });
+    }
+    
+    res.status(500).json({ 
+      message: 'Failed to delete habit',
+      error: error.message 
+    });
+  }
+});
+
+// Toggle habit completion for a specific date
+router.patch('/:habitId/toggle-date', async (req, res) => {
+  try {
+    const { habitId } = req.params;
+    const { date } = req.body;
+    const userId = req.user.id;
+    if (!date) {
+      return res.status(400).json({ message: 'Date is required' });
+    }
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
+      return res.status(400).json({ 
+        message: 'Invalid date format. Use YYYY-MM-DD' 
+      });
+    }
+    const inputDate = new Date(date + 'T00:00:00.000Z');
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    
+    if (inputDate > today) {
+      return res.status(400).json({ 
+        message: 'Cannot mark habits as completed for future dates' 
       });
     }
 
-    await habit.save();
-    res.json(habit);
-  } catch (err) {
-    console.error("Error in toggle route:", err);
-    res.status(500).json({ message: err.message });
+    // Find the habit
+    const habit = await Habit.findOne({ _id: habitId, userId });
+    if (!habit) {
+      return res.status(404).json({ message: 'Habit not found' });
+    }
+    const dateIndex = habit.completedDates.indexOf(date);
+    
+    if (dateIndex > -1) {
+      habit.completedDates.splice(dateIndex, 1);
+    } else {
+     
+      habit.completedDates.push(date);
+    }
+
+    const updatedHabit = await habit.save();
+    
+    res.json(updatedHabit);
+  } catch (error) {
+    console.error('Error toggling habit completion:', error);
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid habit ID' });
+    }
+    
+    res.status(500).json({ 
+      message: 'Failed to update habit completion',
+      error: error.message 
+    });
   }
 });
 
-// delete habit
-router.delete("/:id",authMiddleware, async (req, res) => {
-  try {
-    await Habit.findByIdAndDelete(req.params.id);
-    res.json({ message: "Habit deleted" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
 
 
 
