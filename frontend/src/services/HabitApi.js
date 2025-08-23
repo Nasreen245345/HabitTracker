@@ -1,62 +1,88 @@
 import axios from "axios";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-class HabitAPI {
-  getAuthHeaders() {
-    const token = localStorage.getItem("token");
-    return {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
+
+class HabitApi {
+  constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: API_BASE_URL,
+    });
+
+    // Add request interceptor to include auth token
+    this.axiosInstance.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
   }
 
+  // Get auth headers
+  getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  // Get all habits 
   async getAllHabits() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/habits`, {
-        headers: this.getAuthHeaders(),
-      });
+      const response = await this.axiosInstance.get('/habits');
       return response.data;
     } catch (error) {
       console.error("Error fetching habits:", error.response?.data || error.message);
-      throw error.response?.data || error;
+      throw new Error(error.response?.data?.message || 'Failed to fetch habits');
     }
   }
 
+  // Create a new habit
   async createHabit(habitData) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/habits`, habitData, {
-        headers: this.getAuthHeaders(),
-      });
+      const response = await this.axiosInstance.post('/habits', habitData);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error;
+      console.error("Error creating habit:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Failed to create habit');
     }
   }
 
-  async toggleHabitDay(id, day, date) {
+  // Toggle habit completion for a specific date
+  async toggleHabitCompletion(habitId, date) {
     try {
-      const response = await axios.patch(
-        `${API_BASE_URL}/habits/${id}/toggle`,
-        { day, date },
-        { headers: this.getAuthHeaders() }
+      const response = await this.axiosInstance.patch(
+        `/habits/${habitId}/toggle-date`,
+        { date } 
       );
       return response.data;
     } catch (error) {
-      console.error("Error toggling habit day:", error.response?.data || error.message);
-      throw error.response?.data || error;
+      console.error("Error toggling habit completion:", error.response?.data || error.message);
+      
+      // Handle different error types
+      if (error.response) {
+        throw new Error(error.response.data?.message || error.response.data?.error || 'Server error');
+      } else if (error.request) {
+        throw new Error('Network error - no response from server');
+      } else {
+        throw new Error(error.message || 'Unknown error occurred');
+      }
     }
   }
 
-  async deleteHabit(id) {
+  // Delete a habit
+  async deleteHabit(habitId) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/habits/${id}`, {
-        headers: this.getAuthHeaders(),
-      });
+      const response = await this.axiosInstance.delete(`/habits/${habitId}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting habit:", error.response?.data || error.message);
-      throw error.response?.data || error;
+      throw new Error(error.response?.data?.message || 'Failed to delete habit');
     }
   }
 }
 
-export default new HabitAPI();
+export default new HabitApi();

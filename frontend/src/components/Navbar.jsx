@@ -26,7 +26,6 @@ const Navbar = () => {
               >
                 Tracker
               </Link>
-              {/* <span className="font-inter text-customWhite">Welcome, {user.name}</span> */}
               <button
                 className="font-inter text-customWhite text-lg hover:underline"
                 onClick={logout}
@@ -55,7 +54,7 @@ const Navbar = () => {
           >
             Dashboard
           </Link>
-          {user && (
+          {user ? (
             <>
               <Link
                 to="/tracker"
@@ -63,13 +62,12 @@ const Navbar = () => {
               >
                 Tracker
               </Link>
-              {/* <span className="block text-customWhite">
-                Welcome, {user.name}
-              </span> */}
               <button onClick={logout} className="block text-customWhite">
                 Logout
               </button>
             </>
+          ):(
+            navigate("/login")
           )}
 
         </div>
