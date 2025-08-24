@@ -39,30 +39,6 @@ const HabitDashboard = () => {
   ];
 
   useEffect(() => {
-<<<<<<< HEAD
-    fetchDashboardData();
-  }, [period]);
-const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      // const response = await habitApi.getAllHabits();
-      if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
-      
-      const data = response
-      console.log(data)
-      setDashboardData(data);
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-      setDashboardData([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-// Calculate overall statistics
-=======
     fetchHabitsData();
   }, []);
 
@@ -222,7 +198,6 @@ const fetchDashboardData = async () => {
   };
 
   // Calculate overall statistics
->>>>>>> c89ed9a (Enhanced UI for better user experience)
   const calculateOverallStats = () => {
     if (dashboardData.length === 0) return { avgSuccessRate: 0, totalStreak: 0, completedHabits: 0 };
 
