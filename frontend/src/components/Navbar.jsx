@@ -54,14 +54,15 @@ const Navbar = () => {
           >
             Dashboard
           </Link>
-          {user ? (
-            <>
-              <Link
+          <Link
                 to="/tracker"
                 className="block text-customWhite hover:underline"
               >
                 Tracker
               </Link>
+          {user ? (
+            <>
+              
               <button onClick={logout} className="block text-customWhite">
                 Logout
               </button>

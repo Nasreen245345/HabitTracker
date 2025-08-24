@@ -30,7 +30,6 @@ const HabitDashboard = () => {
   const [period, setPeriod] = useState('weekly');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const {user} = useAuth();
   const navigate = useNavigate();
   
   const colors = [
@@ -134,7 +133,6 @@ const HabitDashboard = () => {
   // Calculate success rate for a habit in the given period
   const calculateSuccessRate = (habit, dateRange) => {
     if (dateRange.length === 0) return 0;
-    
     let completedCount = 0;
     dateRange.forEach(date => {
       const dateStr = formatDate(date);
@@ -251,7 +249,7 @@ const HabitDashboard = () => {
         label: 'Success Rate (%)',
         data: dashboardData.map(habit => parseFloat(habit.successRate)),
         backgroundColor: dashboardData.map((_, index) => colors[index % colors.length]),
-        borderRadius: 8,
+        borderRadius: 2,
         barThickness: 40,
       },
     ],

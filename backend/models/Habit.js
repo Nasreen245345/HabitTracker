@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const habitSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -14,16 +13,7 @@ const habitSchema = new mongoose.Schema({
   },
   completedDates: [{
     type: String, 
-    validate: {
-      validator: function(dateStr) {
-        // Validate date format YYYY-MM-DD
-        return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
-      },
-      message: 'Date must be in YYYY-MM-DD format'
-    }
   }],
-  
-  // Track when habit was created to calculate total days
   startDate: {
     type: Date,
     default: Date.now
@@ -37,5 +27,4 @@ const habitSchema = new mongoose.Schema({
 });
 habitSchema.index({ userId: 1, createdAt: -1 });
 habitSchema.index({ userId: 1, completedDates: 1 });
-
 module.exports = mongoose.model('Habit', habitSchema);
