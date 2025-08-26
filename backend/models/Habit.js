@@ -18,10 +18,6 @@ const habitSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  isActive: {
-    type: Boolean,
-    default: true
-  }
 }, { 
   timestamps: true 
 });

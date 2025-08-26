@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import AddHabitForm from "./AddHabbitForm";
 import habitApi from "../services/HabitApi";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -24,8 +25,7 @@ function HabitTracker() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentView, setCurrentView] = useState('today');
   const [showCompleted, setShowCompleted] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const { token } = useAuth();
+  const {theme}=useTheme()
 
   // Auto-refresh when date changes (midnight detection)
   useEffect(() => {
@@ -221,7 +221,7 @@ function HabitTracker() {
   };
 
   const goToToday = () => {
-    setSelectedDate(new Date());
+    setSelectedDate(new Date()); 
     setCurrentView('today');
   };
 
@@ -248,25 +248,49 @@ function HabitTracker() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className={`min-h-screen flex items-center justify-center bg-gray-100 ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 '
+            : 'bg-white/80'
+        }`}>
         <div className="text-center">
-          <div className="rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading your habits...</p>
+          <div className="rounded-full h-16 w-16 border-4  border-t-transparent mx-auto mb-4"></div>
+          <p className={` font-medium ${
+          theme === 'dark'
+            ? 'text-white border-white-600'
+            : 'text-gray-600 border-blue-600'
+        }`}>Loading your habits...</p>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 mt-16">
+    <div className={`min-h-screen  py-8 mt-16 ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 '
+            : 'bg-gray-100'
+        }`}>
       <div className="max-w-6xl mx-auto px-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
+        <div className={`rounded-xl shadow-lg p-8 mb-8 border  ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-900'
+            : 'bg-gray-100 border-gray-100'
+        }`}>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
             <div className="mb-4 lg:mb-0">
-              <h1 className="text-4xl font-bold text-blue1">
+              <h1 className={`text-4xl font-bold  ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-blue1'
+        }`}>
                 Habit Tracker
               </h1>
-              <p className="text-gray-600 mt-2">Build better habits, one day at a time</p>
+              <p className={`text-gray-600 mt-2 ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-blue1'
+        }`}>Build better habits, one day at a time</p>
             </div>
             
             {/* Action Buttons */}
@@ -305,7 +329,11 @@ function HabitTracker() {
           )}
        
           {/* Add Habit Form */}
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
+          <div className={` rounded-xl shadow-lg p-6 mb-8 border ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-900'
+            : 'bg-gray-100 border-gray-100'
+        }`}>
             <AddHabitForm onAddHabit={handleAddHabit} />
           </div>
         </div>
@@ -390,16 +418,28 @@ function HabitTracker() {
         )}
 
         {/* Habits List */}
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+        <div className={` rounded-xl shadow-lg p-8 border  ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-900'
+            : 'bg-gray-100 border-gray-100'
+        }`}>
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className={`text-2xl font-bold  ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-900'
+        }`}>
                 {currentView === 'today' 
                   ? "Today's Habits" 
                   : `Habits for ${selectedDate.toLocaleDateString()}`
                 }
               </h2>
-              <p className="text-gray-600 mt-1">
+              <p className={`text-gray-600 mt-1 ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-600'
+        }`}>
                 {filteredHabits.length} habit{filteredHabits.length !== 1 ? 's' : ''} 
                 {currentView === 'today' && ` • ${todayStats.completed} completed`}
               </p>
@@ -413,8 +453,8 @@ function HabitTracker() {
           
           {habits.length === 0 ? (
             <div className="text-center py-16">
-              <h3 className="text-2xl font-semibold text-gray-900 mb-3">Ready to build great habits?</h3>
-              <p className="text-gray-500 mb-8 max-w-md mx-auto">
+              <h3 className={`text-2xl font-semibold mb-3 ${theme==='dark'?'text-white':'text-gray-500'}`}>Ready to build great habits?</h3>
+              <p className={` mb-8 max-w-md mx-auto ${theme==='dark'?'text-white':'text-gray-500'}`}>
                 Start your journey towards better daily routines. Add your first habit above and begin tracking your progress.
               </p>
             </div>
@@ -431,25 +471,45 @@ function HabitTracker() {
                 
                 
                 return (
-                  <div key={habit._id} className={`border-2 rounded-xl p-6 ${
-                    isCompleted 
-                      ? 'bg-white shadow-md' 
-                      : 'hover:border-gray-300 hover:shadow-md bg-white border-gray-200'
-                  }`}>
-                    <div className="flex items-start justify-between mb-6">
+                  <div
+  key={habit._id}
+  className={`
+    border-2 rounded-xl p-6
+    ${isCompleted 
+      ? (theme === 'dark' 
+          ? 'bg-gray-900/80 border-white-900 shadow-md text-white' 
+          : 'bg-white border-gray-200 shadow-md')
+      : (theme === 'dark' 
+          ? 'bg-gray-900/80 border-white-900 hover:border-gray-700 hover:shadow-md text-white'
+          : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-md')
+    }         
+  `}
+>             <div className="flex items-start justify-between mb-6">
                       <div className="flex-1">
-                        <h3 className="font-bold text-xl text-blue1 mb-3">{habit.name}</h3>
+                        <h3 className={`font-bold text-xl  mb-3 ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-blue1'
+        }`}>{habit.name}</h3>
                        
                         
                       </div>                      
-                      <div className="flex items-center gap-3 ml-4">
+                      <div className={`flex items-center gap-3 ml-4 `}>
                         {canToggle ? (
                           <button
                             onClick={() => handleToggleHabit(habit._id, displayDate)}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
                               isCompleted 
-                                ? 'bg-green-900 text-white shadow-lg hover:bg-green-800' 
-                                : 'bg-blue1 text-white shadow-lg hover:opacity-90'
+                                ? ` ${
+          theme === 'dark'
+            ? 'bg-green-600 text-white'
+            : 'bg-green-900 text-white'
+        }  shadow-lg hover:bg-green-800`
+                                : ` ${
+          theme === 'dark'
+            ? 'bg-white text-black'
+            : 'bg-blue1 text-white'
+        }  shadow-lg hover:opacity-90`
                             }`}
                           >
                             {isCompleted ? 'Completed' : 'Mark Complete'}
@@ -472,9 +532,17 @@ function HabitTracker() {
                     
                     {/* Weekly Progress for Today View */}
                     {currentView === 'today' && (
-                      <div className="bg-gray-50 rounded-lg p-2 border border-gray-100">
+                      <div className={` rounded-lg p-2 border 0 ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-900'
+            : 'bg-gray-50 border-gray-100'
+        }`}>
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-sm font-bold text-blue1">
+                          <span className={`text-sm font-bold ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-blue1'
+        } `}>
                             {Array.from({length: 7}, (_, i) => {
                               const checkDate = new Date();
                               checkDate.setDate(checkDate.getDate() - (6 - i));
@@ -491,12 +559,25 @@ function HabitTracker() {
                             
                             return (
                               <div key={i} className="flex-1 text-center">
-                                <div className="text-xs font-medium text-gray-600 mb-2">
+                                <div className={`text-xs font-medium text-gray-600 mb-2 ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-blue1'
+        }`}>
                                   {dayName}
                                 </div>
                                 <div className={`w-full h-8 rounded-md transition-all ${
-                                  completed ? 'bg-green-900 shadow-sm' : 'bg-gray-200'
-                                }`} />
+                                  completed ? ` ${
+          theme === 'dark'
+            ? 'bg-green-600 '
+            : 'bg-green-900'
+        }  shadow-sm`
+                                : ` ${
+          theme === 'dark'
+            ? 'bg-white '
+            : 'bg-white'
+        }  shadow-lg hover:opacity-90`
+                            }`} />
                               </div>
                             );
                           })}

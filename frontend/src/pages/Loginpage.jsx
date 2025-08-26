@@ -30,14 +30,9 @@ const LoginPage = () => {
       console.error(err);
     }
   };
-useEffect(() => {
-  console.log("User in context changed:", user);
-}, [user]);
-
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-customWhite w-full sm:w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 mx-auto flex flex-col justify-center rounded-lg gap-4 py-6 px-6 shadow-lg">
@@ -72,7 +67,7 @@ useEffect(() => {
         </form>
 
         <div className="text-center font-inter text-lg">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <button onClick={() => navigate("/signup")} className="text-blue1 font-inter text-lg font-bold hover:underline">
             Sign Up
           </button>

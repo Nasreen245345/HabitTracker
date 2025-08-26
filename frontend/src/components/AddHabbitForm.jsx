@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-
+import {useTheme} from '../context/ThemeContext'
 function AddHabitForm({ onAddHabit }) {
+  const {theme}=useTheme()
   const [formData, setFormData] = useState({
     name: "",
     category: "Other",
@@ -56,15 +57,27 @@ function AddHabitForm({ onAddHabit }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div className={`rounded-lg shadow-sm border border-gray-200 p-6 mb-6 ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-white-200'
+            : 'bg-gray-100 border-gray-200'
+        }`}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">Add New Habit</h2>
+        <h2 className={`text-lg font-semibold  ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-800 '
+        }`}>Add New Habit</h2>
       </div>
 
       <div className="space-y-4">
         {/* Habit Name - Only visible field */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="name" className={`block text-sm font-medium text-gray-700 mb-1 ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-800 '
+        }`}>
             Habit Name *
           </label>
           <input

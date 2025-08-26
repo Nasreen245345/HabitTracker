@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import HabitTracker from './components/HabitTracker';
 import Dashboard from './pages/Dashboard.jsx'
 import {useAuth} from './context/AuthContext.jsx'
+
 function App() {
   const {user}=useAuth()
   

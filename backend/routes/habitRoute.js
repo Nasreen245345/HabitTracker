@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Habit = require('../models/Habit'); // Adjust path as needed
-const authMiddleware = require('../middleware/auth'); // Adjust path as needed
-
-// Apply auth middleware to all routes
+const Habit = require('../models/Habit'); 
+const authMiddleware = require('../middleware/auth'); 
 router.use(authMiddleware);
 
 //Get all habits 
@@ -25,16 +23,13 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, description, category, frequency } = req.body;
+    const { name} = req.body;
     if (!name || !name.trim()) {
       return res.status(400).json({ message: 'Habit name is required' });
     }
 
     const habit = new Habit({
       name: name.trim(),
-      description: description?.trim() || '',
-      category: category || 'general',
-      frequency: frequency || 'daily',
       userId,
       completedDates: [],
       createdAt: new Date()
@@ -84,57 +79,60 @@ router.delete('/:habitId', async (req, res) => {
 });
 
 // Toggle habit completion for a specific date
-router.patch('/:habitId/toggle-date', async (req, res) => {
+router.patch('/:habitId/toggle', async (req, res) => {
   try {
     const { habitId } = req.params;
     const { date } = req.body;
     const userId = req.user.id;
+
     if (!date) {
       return res.status(400).json({ message: 'Date is required' });
     }
+
+    // Ensure format is YYYY-MM-DD
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(date)) {
-      return res.status(400).json({ 
-        message: 'Invalid date format. Use YYYY-MM-DD' 
+      return res.status(400).json({
+        message: 'Invalid date format. Use YYYY-MM-DD'
       });
     }
-    const inputDate = new Date(date + 'T00:00:00.000Z');
+    const [year, month, day] = date.split('-').map(Number);
+    const inputDate = new Date(year, month - 1, day, 0, 0, 0, 0); // local midnight
+    // Today (local)
     const today = new Date();
     today.setHours(23, 59, 59, 999);
-    
     if (inputDate > today) {
-      return res.status(400).json({ 
-        message: 'Cannot mark habits as completed for future dates' 
+      return res.status(400).json({
+        message: 'Cannot mark habits as completed for future dates'
       });
     }
-
     // Find the habit
     const habit = await Habit.findOne({ _id: habitId, userId });
     if (!habit) {
       return res.status(404).json({ message: 'Habit not found' });
     }
+
+    // Toggle completion
     const dateIndex = habit.completedDates.indexOf(date);
-    
     if (dateIndex > -1) {
       habit.completedDates.splice(dateIndex, 1);
     } else {
-     
       habit.completedDates.push(date);
     }
 
     const updatedHabit = await habit.save();
-    
+
     res.json(updatedHabit);
   } catch (error) {
     console.error('Error toggling habit completion:', error);
-    
+
     if (error.name === 'CastError') {
       return res.status(400).json({ message: 'Invalid habit ID' });
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       message: 'Failed to update habit completion',
-      error: error.message 
+      error: error.message
     });
   }
 });

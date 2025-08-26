@@ -3,6 +3,7 @@ import { Doughnut, Bar } from 'react-chartjs-2';
 import {useAuth} from "../context/AuthContext"
 import { useNavigate } from "react-router-dom";
 import habitApi from "../services/HabitApi";
+import {useTheme} from '../context/ThemeContext'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,6 +32,8 @@ const HabitDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const {theme}=useTheme()
+  const isDrak=theme==='Dark'
   
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -60,13 +63,9 @@ const HabitDashboard = () => {
       setLoading(false);
     }
   };
-
-  // Helper function to format date as YYYY-MM-DD
   const formatDate = (date) => {
     return date.toISOString().split('T')[0];
   };
-
-  // Get date range based on period
   const getDateRange = () => {
     const today = new Date();
     const dates = [];
@@ -129,7 +128,6 @@ const HabitDashboard = () => {
     
     return streak;
   };
-
   // Calculate success rate for a habit in the given period
   const calculateSuccessRate = (habit, dateRange) => {
     if (dateRange.length === 0) return 0;
@@ -217,7 +215,11 @@ const HabitDashboard = () => {
     datasets: [
       {
         data: [avgSuccessRate, 100 - avgSuccessRate],
-        backgroundColor: ['#1d87c3', '#E8E8E8'],
+        backgroundColor: [`${
+          theme === 'dark'
+            ? ' #16a34a'
+            : '#1d87c3  '
+        }`, '#E8E8E8'],
         borderWidth: 0,
         cutout: '70%',
       },
@@ -240,7 +242,6 @@ const HabitDashboard = () => {
       }
     },
   };
-
   // Horizontal bar chart data
   const barData = {
     labels: dashboardData.map(habit => habit.habitName),
@@ -254,7 +255,7 @@ const HabitDashboard = () => {
       },
     ],
   };
-
+const textColor = theme === 'dark' ? '#ffffff' : '#4b5563'
   const barOptions = {
     responsive: true,
     indexAxis: 'y',
@@ -265,7 +266,7 @@ const HabitDashboard = () => {
       tooltip: {
         callbacks: {
           label: function(context) {
-            return `Success Rate: ${context.parsed.x.toFixed(1)}%`;
+            return `Success Rate: ${context.parsed.x.toFixed(1)}% `;
           }
         }
       }
@@ -278,6 +279,7 @@ const HabitDashboard = () => {
           color: '#F3F4F6',
         },
         ticks: {
+          color: textColor,
           callback: function(value) {
             return value + '%';
           }
@@ -287,33 +289,56 @@ const HabitDashboard = () => {
         grid: {
           display: false,
         },
+        ticks: {
+        color: textColor, // <-- define ticks.color for Y axis labels
+      }
       },
     },
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className={`flex items-center justify-center min-h-screen ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 '
+            : 'bg-white/80'
+        }`}>
+        <div className={`animate-spin rounded-full h-32 w-32 border-b-2  ${
+          theme === 'dark'
+            ? 'border-white-600'
+            : 'border-blue-600'
+        }`}></div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen mt-16">
-      <div className="max-w-7xl mx-auto">
+    <div className={`p-6  min-h-screen mt-16 ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 '
+            : 'bg-white/80'
+        }`}>
+      <div className={`max-w-7xl mx-auto`}>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-blue1 font-inter">Habits Dashboard</h1>
+          <h1 className={`text-3xl font-bold  font-inter ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-blue1'
+        }`}>Habits Dashboard</h1>
           <div className="flex space-x-2">
             {['today', 'weekly', 'monthly', 'yearly'].map((periodOption) => (
               <button
                 key={periodOption}
                 onClick={() => setPeriod(periodOption)}
-                className={`px-4 py-2 rounded-lg capitalize transition-colors ${
-                  period === periodOption
-                    ? 'bg-blue1 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`
+  px-4 py-2 rounded-lg capitalize transition-colors
+  ${period === periodOption 
+    ? (theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-blue1 text-white')
+    : (theme === 'dark' 
+        ? 'bg-gray-900/80 text-white hover:bg-gray-800'
+        : 'bg-white text-gray-600 hover:bg-gray-100')
+  }
+`}
               >
                 {periodOption}
               </button>
@@ -342,8 +367,8 @@ const HabitDashboard = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-2">No Habits Yet</h3>
-            <p className="text-gray-500 mb-8 max-w-md mx-auto">
+            <h3 className={`text-2xl font-semibold  mb-2 ${theme==='dark'?'text-white':'text-gray-900'}`}>No Habits Yet</h3>
+            <p className={` mb-8 max-w-md mx-auto ${theme==='dark'?'text-white':'text-gray-500'}`}>
               Start building better habits by adding your first habit. Track your progress and build streaks to achieve your goals.
             </p>
             <button 
@@ -362,12 +387,28 @@ const HabitDashboard = () => {
         {dashboardData.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className={` rounded-xl shadow-sm p-6 border  ${
+          theme === 'dark'
+            ? 'bg-gray-900 border-gray-800'
+            : 'bg-white border-gray-200'
+        }`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Overall Success Rate</p>
-                    <p className="text-3xl font-bold text-blue1">{avgSuccessRate.toFixed(1)}%</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className={`text-sm font-medium  ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-600'
+        }`}>Overall Success Rate</p>
+                    <p className={`text-3xl font-bold  ${
+          theme === 'dark'
+            ? 'text-green-600'
+            : 'text-blue1'
+        }`}>{avgSuccessRate.toFixed(1)}%</p>
+                    <p className={`text-xs  mt-1 ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-500'
+        }`}>
                       {period === 'today' ? 'Today' : `Past ${period}`}
                     </p>
                   </div>
@@ -375,12 +416,24 @@ const HabitDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className={` rounded-xl shadow-sm p-6 border border-gray-200 ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-800'
+            : 'bg-white border-gray-200'
+        }`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Streak Days</p>
+                    <p className={`text-sm font-medium  ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-60'
+        }`}>Total Streak Days</p>
                     <p className="text-3xl font-bold text-orange-600">{totalStreak}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className={`text-xs  mt-1 ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-500'
+        }`}>
                       Across all habits
                     </p>
                   </div>
@@ -388,12 +441,24 @@ const HabitDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className={` rounded-xl shadow-sm p-6 border border-gray-200 ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-800'
+            : 'bg-white border-gray-200'
+        }`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Active Habits</p>
+                    <p className={`text-sm font-medium  ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-600'
+        }`}>Active Habits</p>
                     <p className="text-3xl font-bold text-blue-600">{dashboardData.length}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className={`text-xs  mt-1 ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-500'
+        }`}>
                       {completedHabits} completed today
                     </p>
                   </div>
@@ -404,22 +469,46 @@ const HabitDashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Progress Doughnut Chart */}
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Overall Progress</h2>
+              <div className={` rounded-xl shadow-sm p-6 border ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-800'
+            : 'bg-white border-gray-200'
+        }`}>
+                <h2 className={`text-xl font-semibold  mb-6 ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-900 '
+        }`}>Overall Progress</h2>
                 <div className="relative h-64 flex items-center justify-center">
                   <Doughnut data={doughnutData} options={doughnutOptions} />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
-                      <p className="text-3xl font-bold text-gray-900">{avgSuccessRate.toFixed(1)}%</p>
-                      <p className="text-sm text-gray-500">Success Rate</p>
+                      <p className={`text-3xl font-bold  ${
+          theme === 'dark'
+            ? 'text-green-600 '
+            : 'text-gray-900 '
+        }`}>{avgSuccessRate.toFixed(1)}%</p>
+                      <p className={`text-sm  ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-500 '
+        }`}>Success Rate</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Individual Habits Performance */}
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Individual Habit Performance</h2>
+              <div className={` rounded-xl shadow-sm p-6 border  ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-800'
+            : 'bg-white border-gray-200'
+        }`}>
+                <h2 className={`text-xl font-semibold  mb-6 ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-900 '
+        }`}>Individual Habit Performance</h2>
                 <div className="h-64">
                   <Bar data={barData} options={barOptions} />
                 </div>
@@ -427,24 +516,60 @@ const HabitDashboard = () => {
             </div>
 
             {/* Habit Details */}
-         <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+         <div className={`mt-8  rounded-xl shadow-sm border  overflow-hidden ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 border-gray-900 '
+            : 'bg-white border-gray-200'
+        }`}>
   <div className="p-6 border-b border-gray-200">
-    <h2 className="text-xl font-semibold text-gray-900">Habit Details</h2>
+    <h2 className={`text-xl font-semibold  ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-900 '
+        }`}>Habit Details</h2>
   </div>
   <div className="overflow-x-auto">
     <table className="w-full">
-      <thead className="bg-gray-50">
+      <thead className={` ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 '
+            : 'bg-gray-50'
+        }`}>
         <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Habit</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Streak</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Success Rate</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Completions</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className={`px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-500'
+        }`}>Habit</th>
+          <th className={`px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-500'
+        }`}>Current Streak</th>
+          <th className={`px-6 py-3 text-left text-xs font-mediu uppercase tracking-wider ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-500'
+        }`}>Success Rate</th>
+          <th className={`px-6 py-3 text-left text-xs font-medium  uppercase tracking-wider ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-500'
+        }`}>Total Completions</th>
+          <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+          theme === 'dark'
+            ? 'text-white '
+            : 'text-gray-500'
+        }`}>
             {period === 'today' ? 'Today' : `This ${period.slice(0, -2)}`}
           </th>
         </tr>
       </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
+      <tbody className={` divide-y divide-gray-200 ${
+          theme === 'dark'
+            ? 'bg-gray-900/80 '
+            : 'bg-gray-50'
+        }`}>
         {dashboardData.map((habit, index) => (
           <tr key={habit.habitId} className="hover:bg-gray-50">
             <td className="px-6 py-4 whitespace-nowrap">
@@ -471,7 +596,11 @@ const HabitDashboard = () => {
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-gray-900">{habit.totalCompletions}</div>
+              <div className={`text-sm  ${
+          theme === 'dark'
+            ? 'text-white'
+            : 'text-gray-900'
+        }`}>{habit.totalCompletions}</div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               <div className={`flex flex-wrap ${
