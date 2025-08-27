@@ -4,12 +4,11 @@ function AddHabitForm({ onAddHabit }) {
   const {theme}=useTheme()
   const [formData, setFormData] = useState({
     name: "",
-    category: "Other",
-    target: 1,
-    unit: "session",
-    color: "blue"
+   
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,11 +26,17 @@ function AddHabitForm({ onAddHabit }) {
     try {
       const habitData = {
         name: formData.name.trim(),
-        category: formData.category,
-        target: formData.target,
-        unit: formData.unit,
-        color: formData.color
+        
       };
+      
+      await onAddHabit(habitData);
+      
+      // Reset form
+      setFormData({
+        name: "",
+        
+      });
+     
       
       await onAddHabit(habitData);
       
