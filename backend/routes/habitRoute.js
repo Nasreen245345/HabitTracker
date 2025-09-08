@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Habit = require('../models/Habit'); 
-const authMiddleware = require('../middleware/auth'); 
+const authMiddleware = require('../middleware/Auth'); 
 router.use(authMiddleware);
 //Get all habits 
 router.get('/', async (req, res) => {
