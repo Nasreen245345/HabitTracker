@@ -20,15 +20,15 @@ Users can track daily habits, visualize progress with charts, maintain streaks, 
 ## Screenshots
 
 ### Authentication
-![Login Page](screenshots/login.png)
+![Login Page](frontend/screenshots/login.png)
 
 ### Habit Dashboard
-![Habit Dashboard](screenshots/dashboard.png)
-![Habit Dashboard](screenshots/dDarkmode.png)
+![Habit Dashboard](frontend/screenshots/dashboard.png)
+![Habit Dashboard](frontend/screenshots/dDarkmode.png)
 
 ### Habit Tracker
-![Tracker](screenshots/tracker.png)
-![Tracker](screenshots/tracker2.png)
+![Tracker](frontend/screenshots/tracker.png)
+![Tracker](frontend/screenshots/tracker2.png)
 
 *(Replace the above paths with actual image links once you upload screenshots, e.g., to your repo or Imgur.)*
 
@@ -40,7 +40,6 @@ Users can track daily habits, visualize progress with charts, maintain streaks, 
 - React (Vite)
 - Tailwind CSS
 - Axios
-- Recharts / Chart.js
 
 ### Backend
 - Node.js + Express
