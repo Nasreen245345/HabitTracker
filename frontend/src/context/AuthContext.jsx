@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -8,7 +9,6 @@ export const useAuth = () => {
   }
   return context;
 };
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -32,11 +32,14 @@ export const AuthProvider = ({ children }) => {
   }, [token, user]);
 
   const login = (userData, jwtToken) => {
+    localStorage.setItem("token",jwtToken)
+    localStorage.setItem("user",userData)
     setUser(userData);
     setToken(jwtToken);
   };
 
   const logout = () => {
+    
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");

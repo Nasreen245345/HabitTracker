@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import AddHabitForm from "./AddHabbitForm";
 import habitApi from "../services/HabitApi";
-import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { 
   ChevronLeft, 
