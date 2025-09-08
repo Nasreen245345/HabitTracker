@@ -1,12 +1,59 @@
-# React + Vite
+# Habit Tracker with Visual Insights
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack **habit tracking app** built with **React, Tailwind, Node.js, Express, and MongoDB**.  
+Users can track daily habits, visualize progress with charts, maintain streaks, and stay consistent.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+##  Features
 
-## Expanding the ESLint configuration
+- Add, edit, delete daily habits (e.g., *Drink Water 8x*, *Read 20 min*)  
+- Authentication with JWT (Register/Login)  
+- Track daily completions and streaks  
+- Dashboard with streaks, success rate, and charts (Recharts/Chart.js)  
+- Mobile-first responsive UI with Tailwind CSS   
+- Dark mode toggle 
+- Fully deployed on Vercel (frontend) + Railway/Render (backend)  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Screenshots
+
+### Authentication
+![Login Page](screenshots/login.png)
+
+### Habit Dashboard
+![Habit Dashboard](screenshots/dashboard.png)
+![Habit Dashboard](screenshots/dDarkmode.png)
+
+### Habit Tracker
+![Tracker](screenshots/tracker.png)
+![Tracker](screenshots/tracker2.png)
+
+*(Replace the above paths with actual image links once you upload screenshots, e.g., to your repo or Imgur.)*
+
+---
+
+## Tech Stack
+
+### Frontend
+- React (Vite)
+- Tailwind CSS
+- Axios
+- Recharts / Chart.js
+
+### Backend
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT Authentication
+- CORS, dotenv, bcrypt
+
+### Deployment
+- Frontend → Vercel
+- Backend → Railway/Render
+- Database → MongoDB Atlas
+---
+
+## Deployed
+You can view the deployed app [here](https://habit-tracker-3iksch2mi-nasreens-projects-bbb8a391.vercel.app/).
+
