@@ -1,4 +1,4 @@
-# Habit Tracker with Visual Insights
+# Habit Tracker 
 
 A full-stack **habit tracking app** built with **React, Tailwind, Node.js, Express, and MongoDB**.  
 Users can track daily habits, visualize progress with charts, maintain streaks, and stay consistent.
@@ -7,10 +7,10 @@ Users can track daily habits, visualize progress with charts, maintain streaks, 
 
 ##  Features
 
-- Add, edit, delete daily habits (e.g., *Drink Water 8x*, *Read 20 min*)  
+- Add, delete daily habits (e.g., *Drink Water 8x*, *Read 20 min*)  
 - Authentication with JWT (Register/Login)  
 - Track daily completions and streaks  
-- Dashboard with streaks, success rate, and charts (Recharts/Chart.js)  
+- Dashboard with streaks, success rate, and charts  
 - Mobile-first responsive UI with Tailwind CSS   
 - Dark mode toggle 
 - Fully deployed on Vercel (frontend) + Railway/Render (backend)  
@@ -18,10 +18,10 @@ Users can track daily habits, visualize progress with charts, maintain streaks, 
 ---
 
 ## Screenshots
-
+### Signup
+![Signup Page](frontend/screenshots/signup.JPG)
 ### Authentication
 ![Login Page](frontend/screenshots/login.png)
-
 ### Habit Dashboard
 ![Habit Dashboard](frontend/screenshots/dashboard.png)
 ![Habit Dashboard](frontend/screenshots/dDarkmode.png)
@@ -29,8 +29,6 @@ Users can track daily habits, visualize progress with charts, maintain streaks, 
 ### Habit Tracker
 ![Tracker](frontend/screenshots/tracker.png)
 ![Tracker](frontend/screenshots/tracker2.png)
-
-*(Replace the above paths with actual image links once you upload screenshots, e.g., to your repo or Imgur.)*
 
 ---
 
