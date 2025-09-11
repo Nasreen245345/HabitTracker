@@ -47,7 +47,7 @@ Users can track daily habits, visualize progress with charts, maintain streaks, 
 
 ### Deployment
 - Frontend → Vercel
-- Backend → Railway/Render
+- Backend → Railway
 - Database → MongoDB Atlas
 ---
 
